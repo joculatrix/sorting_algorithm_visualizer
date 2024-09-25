@@ -56,6 +56,7 @@ impl<T> Sort<T> for BogoSort where T: PartialOrd + Clone {
 pub struct BubbleSort {
     swapped: bool,
     i: usize,
+    n: usize,
 }
 
 impl BubbleSort {
@@ -63,6 +64,7 @@ impl BubbleSort {
         BubbleSort {
             swapped: false,
             i: 1,
+            n: 0,
         }
     }
 }
@@ -72,7 +74,7 @@ impl<T> Sort<T> for BubbleSort where T: PartialOrd + Clone {
         let i = self.i;
         let j = self.i - 1;
 
-        if i < a.len() {
+        if i < a.len() - self.n {
             if a[j] > a[i] {
                 swap(a, i, j);
                 self.swapped = true;
@@ -87,6 +89,7 @@ impl<T> Sort<T> for BubbleSort where T: PartialOrd + Clone {
         } else {
             self.i = 1;
             self.swapped = false;
+            self.n += 1;
             SortResult::Ok
         }
     }
