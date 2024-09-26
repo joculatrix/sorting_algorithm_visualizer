@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use crate::sort::*;
 
 pub enum AppScreen {
@@ -13,9 +11,11 @@ pub struct Algorithm {
 }
 
 pub struct App {
+    pub data: [usize; crate::ARRAY_LEN],
     pub current_screen: AppScreen,
     pub algorithms: Vec<Algorithm>,
     pub selected: usize,
+    pub sort: Option<Box<dyn Sort<usize>>>,
 }
 
 impl App {
@@ -48,9 +48,11 @@ impl App {
         ];
 
         App {
+            data: core::array::from_fn(|i| i + 1),
             algorithms,
             current_screen: AppScreen::Menu,
             selected: 0,
+            sort: None,
         }
     }
 }

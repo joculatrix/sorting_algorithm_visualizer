@@ -1,15 +1,16 @@
 use std::{error::Error, io};
 
-use app::App;
+use app::{App, AppScreen};
 use ratatui::{
     crossterm::{
-        event::{DisableMouseCapture, EnableMouseCapture},
+        event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
         execute,
         terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen}
     },
     prelude::{Backend, CrosstermBackend},
     Terminal
 };
+use sort::shuffle;
 
 mod app;
 mod sort;
@@ -38,5 +39,36 @@ fn main() -> Result<(), Box<dyn Error>> {
 fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<(), Box<dyn Error>> {
     loop {
         terminal.draw(|f| ui::ui(f, app))?;
+        if let Event::Key(key) = event::read()? {
+            if key.kind == event::KeyEventKind::Release { continue; }
+            match app.current_screen {
+                AppScreen::Menu => match key.code {
+                    KeyCode::Enter => {
+                        app.sort = Some((app.algorithms[app.selected].new)());
+                        shuffle(&mut app.data);
+                        app.current_screen = AppScreen::Sort;
+                    }
+                    KeyCode::Esc => {
+                        return Ok(());
+                    }
+                    KeyCode::Up => {
+                        if app.selected == 0 {
+                            app.selected = app.algorithms.len() - 1;
+                        } else {
+                            app.selected -= 1;
+                        }
+                    }
+                    KeyCode::Down => {
+                        if app.selected == app.algorithms.len() - 1 {
+                            app.selected = 0;
+                        } else {
+                            app.selected += 1;
+                        }
+                    }
+                    _ => ()
+                }
+                AppScreen::Sort => todo!(),
+            }
+        }
     }
 }
