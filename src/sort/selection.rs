@@ -24,7 +24,7 @@ impl<T> Sort<T> for SelectionSort where T: PartialOrd + Clone {
                     self.min = self.j;
                 }
                 self.j += 1;
-                SortResult::Ok
+                SortResult::Swap(vec![self.j]) // makes this sort more visually interesting
             } else if self.min != self.i {
                 let i = self.i;
                 let min = self.min;
