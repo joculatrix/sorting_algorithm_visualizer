@@ -1,6 +1,6 @@
 use ratatui::{
     layout::{Alignment, Constraint, Direction, Layout, Rect},
-    style::{Color, Style, Stylize},
+    style::{Color, Style},
     text::Span,
     widgets::{Bar, BarChart, BarGroup, Block, Borders, List, ListItem, Paragraph},
     Frame
@@ -90,10 +90,14 @@ fn render_sort(frame: &mut Frame, area: Rect, app: &App) {
     let mut bars = vec![];
 
     for i in 0..app.data.len() {
-        let color = if app.swapped.contains(&app.data[i]) {
-            Color::Red
+        let color = if let Some(_) = app.sort {
+            if app.swapped.contains(&app.data[i]) {
+                Color::Red
+            } else {
+                Color::White
+            }
         } else {
-            Color::White
+            Color::Green
         };
 
         bars.push(

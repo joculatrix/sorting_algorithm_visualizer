@@ -1,5 +1,6 @@
 use crate::sort::*;
 
+#[derive(PartialEq)]
 pub enum AppScreen {
     Menu,
     Sort,

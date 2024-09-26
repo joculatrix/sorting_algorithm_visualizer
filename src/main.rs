@@ -1,4 +1,4 @@
-use std::{error::Error, io};
+use std::{error::Error, io, time::Duration};
 
 use app::{App, AppScreen};
 use ratatui::{
@@ -10,7 +10,7 @@ use ratatui::{
     prelude::{Backend, CrosstermBackend},
     Terminal
 };
-use sort::shuffle;
+use sort::{shuffle, SortResult};
 
 mod app;
 mod sort;
@@ -39,35 +39,56 @@ fn main() -> Result<(), Box<dyn Error>> {
 fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<(), Box<dyn Error>> {
     loop {
         terminal.draw(|f| ui::ui(f, app))?;
-        if let Event::Key(key) = event::read()? {
-            if key.kind == event::KeyEventKind::Release { continue; }
-            match app.current_screen {
-                AppScreen::Menu => match key.code {
-                    KeyCode::Enter => {
-                        app.sort = Some((app.algorithms[app.selected].new)());
-                        shuffle(&mut app.data);
-                        app.current_screen = AppScreen::Sort;
+
+        if app.current_screen == AppScreen::Sort {
+            if let Some(ref mut sort) = app.sort {
+                match sort.step(&mut app.data) {
+                    SortResult::Done => {
+                        app.sort.take();
+                        app.swapped.clear();
                     }
-                    KeyCode::Esc => {
-                        return Ok(());
-                    }
-                    KeyCode::Up => {
-                        if app.selected == 0 {
-                            app.selected = app.algorithms.len() - 1;
-                        } else {
-                            app.selected -= 1;
+                    SortResult::Swap(vec) => app.swapped = vec,
+                    SortResult::Ok => app.swapped.clear(),
+                }  
+            };
+        }
+        
+        if event::poll(Duration::from_millis(8))? {
+            if let Event::Key(key) = event::read()? {
+                if key.kind == event::KeyEventKind::Release { continue; }
+                match app.current_screen {
+                    AppScreen::Menu => match key.code {
+                        KeyCode::Enter => {
+                            app.sort = Some((app.algorithms[app.selected].new)());
+                            shuffle(&mut app.data);
+                            app.current_screen = AppScreen::Sort;
                         }
-                    }
-                    KeyCode::Down => {
-                        if app.selected == app.algorithms.len() - 1 {
-                            app.selected = 0;
-                        } else {
-                            app.selected += 1;
+                        KeyCode::Esc => {
+                            return Ok(());
                         }
+                        KeyCode::Up => {
+                            if app.selected == 0 {
+                                app.selected = app.algorithms.len() - 1;
+                            } else {
+                                app.selected -= 1;
+                            }
+                        }
+                        KeyCode::Down => {
+                            if app.selected == app.algorithms.len() - 1 {
+                                app.selected = 0;
+                            } else {
+                                app.selected += 1;
+                            }
+                        }
+                        _ => ()
                     }
-                    _ => ()
+                    AppScreen::Sort => match key.code {
+                        KeyCode::Esc => {
+                            app.current_screen = AppScreen::Menu;
+                        }
+                        _ => ()
+                    }
                 }
-                AppScreen::Sort => todo!(),
             }
         }
     }
