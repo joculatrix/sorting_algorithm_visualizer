@@ -14,6 +14,12 @@ impl BubbleSort {
             n: 0,
         }
     }
+
+    fn next_pass(&mut self) {
+        self.i = 1;
+        self.swapped = false;
+        self.n += 1;
+    }
 }
 
 impl<T> Sort<T> for BubbleSort where T: PartialOrd + Clone {
@@ -34,9 +40,7 @@ impl<T> Sort<T> for BubbleSort where T: PartialOrd + Clone {
         } else if !self.swapped {
             SortResult::Done
         } else {
-            self.i = 1;
-            self.swapped = false;
-            self.n += 1;
+            self.next_pass();
             SortResult::Ok
         }
     }
