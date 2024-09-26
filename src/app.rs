@@ -16,6 +16,7 @@ pub struct App {
     pub algorithms: Vec<Algorithm>,
     pub selected: usize,
     pub sort: Option<Box<dyn Sort<usize>>>,
+    pub swapped: Vec<usize>,
 }
 
 impl App {
@@ -53,6 +54,7 @@ impl App {
             current_screen: AppScreen::Menu,
             selected: 0,
             sort: None,
+            swapped: vec![],
         }
     }
 }

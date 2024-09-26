@@ -1,8 +1,8 @@
 use ratatui::{
     layout::{Alignment, Constraint, Direction, Layout, Rect},
-    style::{Color, Style},
+    style::{Color, Style, Stylize},
     text::Span,
-    widgets::{Block, Borders, List, ListItem, Paragraph},
+    widgets::{Bar, BarChart, BarGroup, Block, Borders, List, ListItem, Paragraph},
     Frame
 };
 
@@ -32,7 +32,7 @@ pub fn ui(frame: &mut Frame, app: &App) {
 
     // CONTENT
 
-    let content_area = Layout::default()
+    let menu_area = Layout::default()
         .direction(Direction::Horizontal)
         .constraints([
             Constraint::Percentage(20),
@@ -42,8 +42,8 @@ pub fn ui(frame: &mut Frame, app: &App) {
         .split(chunks[1])[1];
 
     match app.current_screen {
-        AppScreen::Menu => render_menu(frame, content_area, app),
-        AppScreen::Sort => todo!(),
+        AppScreen::Menu => render_menu(frame, menu_area, app),
+        AppScreen::Sort => render_sort(frame, chunks[1], app),
     }
 
     // FOOTER
@@ -84,4 +84,29 @@ fn render_menu(frame: &mut Frame, area: Rect, app: &App) {
     let list = List::new(list_items);
 
     frame.render_widget(list, area);
+}
+
+fn render_sort(frame: &mut Frame, area: Rect, app: &App) {
+    let mut bars = vec![];
+
+    for i in 0..app.data.len() {
+        let color = if app.swapped.contains(&app.data[i]) {
+            Color::Red
+        } else {
+            Color::White
+        };
+
+        bars.push(
+            Bar::default()
+                .value(app.data[i].try_into().unwrap())
+                .style(color)
+                .value_style(Style::new().bg(color).fg(color))
+        );
+    }
+
+    let bar_chart = BarChart::default()
+        .bar_gap(0)
+        .data(BarGroup::default().bars(&bars));
+
+    frame.render_widget(bar_chart, area);
 }
