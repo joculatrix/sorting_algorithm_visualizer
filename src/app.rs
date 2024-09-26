@@ -23,7 +23,7 @@ pub struct App {
 
 impl App {
     pub fn new() -> App {
-        let mut algorithms: Vec<Algorithm> = vec![
+        let algorithms: Vec<Algorithm> = vec![
                 Algorithm {
                     name: "Bogosort",
                     new: || Box::new(BogoSort::new())

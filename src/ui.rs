@@ -32,19 +32,16 @@ pub fn ui(frame: &mut Frame, app: &App) {
 
     // CONTENT
 
-    let menu_area = Layout::default()
+    let content_area = Layout::default()
         .direction(Direction::Horizontal)
         .constraints([
-            Constraint::Percentage(20),
-            Constraint::Percentage(60),
-            Constraint::Percentage(20),
+            Constraint::Min(20),
+            Constraint::Min(100),
         ])
-        .split(chunks[1])[1];
+        .split(chunks[1]);
 
-    match app.current_screen {
-        AppScreen::Menu => render_menu(frame, menu_area, app),
-        AppScreen::Sort => render_sort(frame, chunks[1], app),
-    }
+        render_menu(frame, content_area[0], app);
+        render_sort(frame, content_area[1], app);
 
     // FOOTER
 
@@ -66,15 +63,26 @@ pub fn ui(frame: &mut Frame, app: &App) {
 fn render_menu(frame: &mut Frame, area: Rect, app: &App) {
     let mut list_items = vec![];
 
+    let (item_style, selected_style) = match app.current_screen {
+        AppScreen::Menu => (
+            Style::default().fg(Color::Red),
+            Style::default().bg(Color::Red).fg(Color::Black),
+        ),
+        AppScreen::Sort => (
+            Style::default().fg(Color::DarkGray),
+            Style::default().bg(Color::DarkGray).fg(Color::Black),
+        )
+    };
+
     for i in 0..app.algorithms.len() {
         list_items.push(
             ListItem::new(
                 Span::styled(
                     app.algorithms[i].name,
                     if i == app.selected {
-                        Style::default().bg(Color::Red).fg(Color::Black)
+                        selected_style
                     } else {
-                        Style::default().fg(Color::Red)
+                        item_style
                     }
                 )
             )
@@ -90,13 +98,15 @@ fn render_sort(frame: &mut Frame, area: Rect, app: &App) {
     let mut bars = vec![];
 
     for i in 0..app.data.len() {
-        let color = if let None = app.sort {
-            if i <= app.n {
+        let color = if app.current_screen == AppScreen::Menu {
+            Color::DarkGray
+        } else if app.n != 0 {
+            if i < app.n {
                 Color::Green
             } else {
                 Color::White
             }
-        } else {
+        } else{
             if app.swapped.contains(&app.data[i]) {
                 Color::Red
             } else {

@@ -52,10 +52,20 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<(), 
                 }  
             } else if app.n < app.data.len() {
                 app.n += 1;
+            } else {
+                app.current_screen = AppScreen::Menu;
             }
         }
         
-        if event::poll(Duration::from_millis(8))? {
+        let duration = if app.current_screen == AppScreen::Sort
+            && app.algorithms[app.selected].name == "Bogosort"
+        {
+            Duration::from_millis(100)
+        } else {
+            Duration::from_millis(8)
+        };
+
+        if event::poll(duration)? {
             if let Event::Key(key) = event::read()? {
                 if key.kind == event::KeyEventKind::Release { continue; }
                 match app.current_screen {
@@ -63,6 +73,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<(), 
                         KeyCode::Enter => {
                             app.sort = Some((app.algorithms[app.selected].new)());
                             shuffle(&mut app.data);
+                            app.n = 0;
                             app.current_screen = AppScreen::Sort;
                         }
                         KeyCode::Esc => {
