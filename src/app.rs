@@ -18,6 +18,7 @@ pub struct App {
     pub selected: usize,
     pub sort: Option<Box<dyn Sort<usize>>>,
     pub swapped: Vec<usize>,
+    pub n: usize, // for making the green "finished" color sweep across the data
 }
 
 impl App {
@@ -56,6 +57,7 @@ impl App {
             selected: 0,
             sort: None,
             swapped: vec![],
+            n: 0,
         }
     }
 }

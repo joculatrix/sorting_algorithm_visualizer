@@ -90,14 +90,18 @@ fn render_sort(frame: &mut Frame, area: Rect, app: &App) {
     let mut bars = vec![];
 
     for i in 0..app.data.len() {
-        let color = if let Some(_) = app.sort {
+        let color = if let None = app.sort {
+            if i <= app.n {
+                Color::Green
+            } else {
+                Color::White
+            }
+        } else {
             if app.swapped.contains(&app.data[i]) {
                 Color::Red
             } else {
                 Color::White
             }
-        } else {
-            Color::Green
         };
 
         bars.push(

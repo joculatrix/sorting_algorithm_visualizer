@@ -50,7 +50,9 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<(), 
                     SortResult::Swap(vec) => app.swapped = vec,
                     SortResult::Ok => app.swapped.clear(),
                 }  
-            };
+            } else if app.n < app.data.len() {
+                app.n += 1;
+            }
         }
         
         if event::poll(Duration::from_millis(8))? {
